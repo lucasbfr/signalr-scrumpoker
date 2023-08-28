@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <link href="https://extranet.static-files.d-edge.com/extranet-ui-kit/5-latest/ui-kit.css" rel="stylesheet" />
+    <link href="https://extranet.static-files.d-edge.com/fonts/0-latest/open-sans/index.css" rel="stylesheet">
+
+
+
+</head>
+<body id="body" class="ctx-new-header">
+    <div class="page">
+        <div class="u-container">
+            <h2 class="u-margin-bottom-medium">Scrum Poker</h2>
+
+            <article class="avp-widget widget--secondary u-margin-bottom-medium">
+                <header class="widget-header">
+                    <div class="widget-header-default">
+                        <h2 class="widget-header-title">Messages</h2>
+                    </div>
+                </header>
+                <div class="widget-content" id="messages-received">
+                    (messages will appear here)
+                </div>
+            </article>
+
+            <article class="avp-widget widget--primary">
+                <header class="widget-header">
+                    <div class="widget-header-default">
+                        <h2 class="widget-header-title">Messages</h2>
+                    </div>
+                </header>
+                <div class="widget-content" id="messages">
+
+
+                    <label class="avp-label u-display-block u-margin-bottom-smaller">Message</label>
+                    <textarea class="avp-textarea u-margin-bottom-small" id="message"></textarea>
+
+                    <div>
+                        <a class="avp-button button--secondary button--solid button--medium is-disabled" id="echo">Echo</a>
+                        <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Send</a>
+                    </div>
+                </div>
+
+            </article>
+
+            <div class="avp-banner-message banner-message--error" id="connectionError" style="display: none" >
+                <i class="banner-message-icon" aria-hidden="true"></i>
+                <div class="banner-message-wrap-left">
+                    <p class="banner-message-title">Connection Error...</p>
+                    <p class="banner-message-text">Press F5 to rejoin</p>
+                </div>
+                <!--<div class="banner-message-wrap-right">
+                    <button type="button" class="banner-message-button">Close</button>
+                </div>-->
+            </div>
+
+
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.0.js"></script>
+
+
+    <!--Add script to update the page and send messages.-->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const generateRandomName = () =>
+                Math.random().toString(36).substring(2, 10);
+
+            let username = generateRandomName();
+            const promptMessage = 'Enter your name:';
+            do {
+                username = prompt(promptMessage, username);
+                if (!username || username.startsWith('_') || username.indexOf('<') > -1 || username.indexOf('>') > -1) {
+                    username = '';
+                    promptMessage = 'Invalid input. Enter your name:';
+                }
+            } while (!username)
+
+            const messageInput = document.getElementById('message');
+            messageInput.focus();
+
+            function enableInput() {
+                $('#sendmessage').removeClass('is-disabled')
+                $('#echo').removeClass('is-disabled')
+            }
+
+            function disableInput() {
+                $('#sendmessage').addClass('is-disabled')
+                $('#echo').addClass('is-disabled')
+            }
+            function createMessageEntry(encodedName, encodedMsg) {
+                var entry = document.createElement('div');
+                entry.classList.add("message-entry");
+                if (encodedName === "_SYSTEM_") {
+                    entry.innerHTML = encodedMsg;
+                    entry.classList.add("text-center");
+                    entry.classList.add("system-message");
+                } else if (encodedName === "_BROADCAST_") {
+                    entry.classList.add("text-center");
+                    entry.innerHTML = `<div class="text-center broadcast-message">${encodedMsg}</div>`;
+                } else if (encodedName === username) {
+                    entry.innerHTML = `<div class="message-avatar pull-right">${encodedName}</div>` +
+                        `<div class="message-content pull-right">${encodedMsg}<div>`;
+                } else {
+                    entry.innerHTML = `<div class="message-avatar pull-left">${encodedName}</div>` +
+                        `<div class="message-content pull-left">${encodedMsg}<div>`;
+                }
+                return entry;
+            }
+
+            function bindConnectionMessage(connection) {
+                var messageCallback = function (name, message) {
+                    console.log('Received message ' + name + ': ' + message);
+                    if (!message) return;
+                    var encodedName = name;
+                    var encodedMsg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    var messageEntry = createMessageEntry(encodedName, encodedMsg);
+
+                    var messageBox = document.getElementById('messages');
+                    messageBox.appendChild(messageEntry);
+                    messageBox.scrollTop = messageBox.scrollHeight;
+                };
+                connection.on('broadcastMessage', messageCallback);
+                connection.on('echo', messageCallback);
+                connection.onclose(onConnectionError);
+            }
+
+            function onConnected(connection) {
+                console.log('connection started');
+                enableInput();
+                connection.send('broadcastMessage', '_SYSTEM_', username + ' JOINED');
+                document.getElementById('sendmessage').addEventListener('click', function (event) {
+                    console.log('sending message sendmessage: ' + messageInput.value);
+                    if (messageInput.value) {
+                        connection.send('broadcastMessage', username, messageInput.value);
+                    }
+
+                    messageInput.value = '';
+                    messageInput.focus();
+                    event.preventDefault();
+                });
+                document.getElementById('message').addEventListener('keypress', function (event) {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        document.getElementById('sendmessage').click();
+                        return false;
+                    }
+                });
+                document.getElementById('echo').addEventListener('click', function (event) {
+                    console.log('sending message echo: ' + messageInput.value);
+                    connection.send('echo', username, messageInput.value);
+
+                    messageInput.value = '';
+                    messageInput.focus();
+                    event.preventDefault();
+                });
+            }
+
+            function onConnectionError(error) {
+                if (error && error.message) {
+                    console.error(error.message);
+                }
+                disableInput();
+                var modal = $("#myModal").show();
+            }
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/scrumpokerhub')
+                .build();
+            bindConnectionMessage(connection);
+            connection.start()
+                .then(() => onConnected(connection))
+                .catch(error => console.error(error.message));
+        });
+    </script>
+</body>
+</html>
