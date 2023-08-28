@@ -1,4 +1,5 @@
 var votes = [];
+var users = [];
 const messageInput = $('#message');
 const messageBox = $('#messages-received');
 var connection;
@@ -12,18 +13,18 @@ function disableInput() {
     $('#sendmessage').addClass('is-disabled')
     $('#echo').addClass('is-disabled')
 }
-function createMessageEntry(encodedName, encodedMsg) {
+function createMessageEntry(userName, message, argument) {
     var div = $('<p class="avp-alert u-margin-bottom-small"><i class="alert-icon" aria-hidden="true"></i> </p>');
-    var message = $('<span class="alert-message"></span>')
+    var messageSpan = $('<span class="alert-message"></span>')
     var user = $('<span class="u-font-semi-bold"></span>');
     var text = $('<span></span>');
-    text.text(encodedMsg);
+    text.text(message);
 
-    if (encodedName === "_SYSTEM_") {
+    if (userName === "_SYSTEM_") {
         div.addClass("alert--warning");
-    } else if (encodedName === "_BROADCAST_") {
+    } else if (userName === "_BROADCAST_") {
         div.addClass("alert--warning");
-    } else if (encodedName === username) {
+    } else if (userName === username) {
         div.addClass("alert--validation");
         user.text(username + ': ');
 
@@ -31,9 +32,9 @@ function createMessageEntry(encodedName, encodedMsg) {
         div.addClass("alert--information");
         user.text(username + ': ');
     }
-    message.append(user);
-    message.append(text);
-    div.append(message);
+    messageSpan.append(user);
+    messageSpan.append(text);
+    div.append(messageSpan);
     return div;
 }
 
@@ -84,23 +85,38 @@ function vote(element) {
     connection.send('vote', username, value);
 }
 
+function addUser(user) {
+    if (user) {
+
+        if (users.indexOf(user) < 0) {
+            users[users.length] = user;
+        }
+        $('#userCount').text(users.length + ' known users.')
+    }
+}
+
 function bindConnectionMessage(connection) {
-    var messageCallback = function (name, message) {
+    var messageCallback = function (name, message, argument) {
         console.log('Received message ' + name + ': ' + message);
         if (!message) return;
-        var messageEntry = createMessageEntry(name, message);
+        var messageEntry = createMessageEntry(name, message, argument);
 
         messageBox.append(messageEntry);
-
+        if (name && name[0] == '_' && argument) {
+            // the argument is the user name
+            addUser(argument);
+        } else {
+            addUser(name);
+        }
     };
 
     var voteCallback = function (name, value) {
         if (value === 'start') {
-            var messageEntry = createMessageEntry('_BROADCAST_', name + ' has started a vote');
+            var messageEntry = createMessageEntry('_BROADCAST_', name + ' has started a vote', name);
             messageBox.append(messageEntry);
             voteStarted();
         } else if (value === 'end') {
-            var messageEntry = createMessageEntry('_BROADCAST_', name + ' has ended a vote');
+            var messageEntry = createMessageEntry('_BROADCAST_', name + ' has ended a vote', name);
             messageBox.append(messageEntry);
             voteEnded();
         } else {
@@ -114,13 +130,14 @@ function bindConnectionMessage(connection) {
                 votes[votes.length] = { name: name, value: value };
             }
 
-            var messageEntry = createMessageEntry(name, message);
+            var messageEntry = createMessageEntry(name, message, null);
             messageBox.append(messageEntry);
 
             var voteCount = $('#voteCount');
             voteCount.text(votes.length + ' votes.')
             voteCount.show();
         }
+        addUser(name);
     };
 
     connection.on('broadcastMessage', messageCallback);
@@ -132,13 +149,13 @@ function bindConnectionMessage(connection) {
 function onConnected(connection) {
     console.log('connection started');
     enableInput();
-    connection.send('broadcastMessage', '_SYSTEM_', username + ' JOINED');
+    connection.send('broadcastMessage', '_SYSTEM_', username + ' joined the room', username);
 
     $('#sendmessage').click((event) => {
         var message = messageInput.val();
         console.log('sending message sendmessage: ' + message);
         if (message) {
-            connection.send('broadcastMessage', username, message);
+            connection.send('broadcastMessage', username, message, username);
         }
 
         messageInput.val('');
@@ -151,7 +168,7 @@ function onConnected(connection) {
         var message = 'Echo at ' + new Date();
         console.log('sending message echo: ' + message);
         if (message) {
-            connection.send('echo', username, message);
+            connection.send('echo', username, message, username);
         }
 
         messageInput.val('');
