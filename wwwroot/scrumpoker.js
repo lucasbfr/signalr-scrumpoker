@@ -168,7 +168,7 @@ function onConnected(connection) {
         var message = 'Echo at ' + new Date();
         console.log('sending message echo: ' + message);
         if (message) {
-            connection.send('echo', username, message, username);
+            connection.send('echo', username, message);
         }
 
         messageInput.val('');
@@ -221,6 +221,8 @@ function login() {
 }
 
 $('#login-button').click(login);
+$('#name-input').focus();
+
 document.getElementById('message').addEventListener('keypress', function (event) {
     if (event.keyCode === 13) {
         event.preventDefault();

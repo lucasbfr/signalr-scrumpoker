@@ -10,98 +10,95 @@
 
 
 </head>
-<body id="u-container-small u-container-spacing">
-
-    <div class="avp-banner-message banner-message--error u-margin-bottom-medium" id="connectionError" style="display: none">
-        <i class="banner-message-icon" aria-hidden="true"></i>
-        <div class="banner-message-wrap-left">
-            <p class="banner-message-title">Connection Error...</p>
-            <p class="banner-message-text">Press F5 to rejoin</p>
-        </div>
-        <!--<div class="banner-message-wrap-right">
+<body>
+    <div class="page">
+        <div class="u-container-small u-container-spacing">
+            <div class="avp-banner-message banner-message--error u-margin-bottom-medium" id="connectionError" style="display: none">
+                <i class="banner-message-icon" aria-hidden="true"></i>
+                <div class="banner-message-wrap-left">
+                    <p class="banner-message-title">Connection Error...</p>
+                    <p class="banner-message-text">Press F5 to rejoin</p>
+                </div>
+                <!--<div class="banner-message-wrap-right">
             <button type="button" class="banner-message-button">Close</button>
         </div>-->
-    </div>
+            </div>
 
-    <div class="page" id="login-page">
-        <article class="avp-widget widget--primary u-margin-bottom-medium">
-            <header class="widget-header">
-                <div class="widget-header-default">
-                    <h2 class="widget-header-title">Login</h2>
+            <div id="login-page">
+                <article class="avp-widget widget--primary u-margin-bottom-medium">
+                    <header class="widget-header">
+                        <div class="widget-header-default">
+                            <h2 class="widget-header-title">Login</h2>
+                        </div>
+                    </header>
+                    <div class="widget-content">
+
+                        <label class="avp-label u-display-block u-margin-bottom-smaller u-visually-hidden"
+                               for="name-input">
+                            Name
+                        </label>
+                        <input type="text" class="avp-textinput" id="name-input" />
+                    </div>
+                    <div class="widget-actions">
+                        <button class="avp-button button--primary button--solid button--medium" type="submit" id="login-button">Login</button>
+                    </div>
+                </article>
+            </div>
+            <div id="scrumPoker-page" style="display:none">
+                <div class="page--content">
+                    <h2 class="u-margin-bottom-medium">Scrum Poker</h2>
+
+
+                    <article class="avp-widget widget--secondary u-margin-bottom-medium">
+                        <header class="widget-header">
+                            <div class="widget-header-default">
+                                <h2 class="widget-header-title">Messages</h2>
+                            </div>
+                        </header>
+                        <div class="widget-content" id="messages-received">
+                        </div>
+                    </article>
+
+                    <article class="avp-widget widget--primary">
+                        <header class="widget-header">
+                            <div class="widget-header-default">
+                                <h2 class="widget-header-title">Messages</h2>
+                            </div>
+                        </header>
+                        <div class="widget-content" id="messages">
+
+
+                            <label class="avp-label u-display-block u-margin-bottom-smaller">Message</label>
+                            <textarea class="avp-textarea u-margin-bottom-small" id="message"></textarea>
+
+                            <div>
+                                <a class="avp-button button--secondary button--solid button--medium is-disabled" id="echo">Echo (test connection)</a>
+                                <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Chat</a>
+                                <span id="userCount" class="u-font-small"></span>
+                            </div>
+                            <div class="u-margin-top-medium">
+                                <div id="voteButtons" style="display:none">
+                                    <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">1</a>
+                                    <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">2</a>
+                                    <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">3</a>
+                                    <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">5</a>
+                                    <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">8</a>
+                                    <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">13</a>
+                                    <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">?</a>
+                                </div>
+                                <div id="voteButtonsControl" class="u-margin-top-small" style="display:none">
+                                    <a class="avp-button button--primary button--outline button--medium" id="vote-start">Start vote</a>
+                                    <a class="avp-button button--primary button--outline button--medium is-disabled" id="vote-end">End vote</a>
+                                    <span class="u-font-semi-bold" style="display:none" id="voteCount"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
                 </div>
-            </header>
-            <div class="widget-content">
-
-                <label class="avp-label u-display-block u-margin-bottom-smaller u-visually-hidden"
-                       for="name-input">
-                    Name
-                </label>
-                <input type="text" class="avp-textinput" id="name-input" />
             </div>
-            <div class="widget-actions">
-                <button class="avp-button button--primary button--solid button--medium" type="submit" id="login-button">Login</button>
-            </div>
-        </article>
-    </div>
-    <div class="page" id="scrumPoker-page" style="display:none">
-        <div class="">
-            <div class="page--content">
-                <h2 class="u-margin-bottom-medium">Scrum Poker</h2>
-
-
-                <article class="avp-widget widget--secondary u-margin-bottom-medium">
-                    <header class="widget-header">
-                        <div class="widget-header-default">
-                            <h2 class="widget-header-title">Messages</h2>
-                        </div>
-                    </header>
-                    <div class="widget-content" id="messages-received">
-                    </div>
-                </article>
-
-                <article class="avp-widget widget--primary">
-                    <header class="widget-header">
-                        <div class="widget-header-default">
-                            <h2 class="widget-header-title">Messages</h2>
-                        </div>
-                    </header>
-                    <div class="widget-content" id="messages">
-
-
-                        <label class="avp-label u-display-block u-margin-bottom-smaller">Message</label>
-                        <textarea class="avp-textarea u-margin-bottom-small" id="message"></textarea>
-
-                        <div>
-                            <a class="avp-button button--secondary button--solid button--medium is-disabled" id="echo">Echo (test connection)</a>
-                            <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Chat</a>
-                            <span id="userCount" class="u-font-small"></span>
-                        </div>
-                        <div class="u-margin-top-medium">
-                            <div id="voteButtons" style="display:none">
-                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">1</a>
-                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">2</a>
-                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">3</a>
-                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">5</a>
-                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">8</a>
-                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">13</a>
-                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">?</a>
-                            </div>
-                            <div id="voteButtonsControl" class="u-margin-top-small" style="display:none">
-                                <a class="avp-button button--primary button--outline button--medium" id="vote-start">Start vote</a>
-                                <a class="avp-button button--primary button--outline button--medium is-disabled" id="vote-end">End vote</a>
-                                <span class="u-font-semi-bold" style="display:none" id="voteCount"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                </article>
-
-
-            </div>
-
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.0.js"></script>
 
 
