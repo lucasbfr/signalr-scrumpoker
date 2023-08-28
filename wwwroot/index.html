@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title></title>
+    <title>Lucas - Scrum Poker</title>
 
     <link href="https://extranet.static-files.d-edge.com/extranet-ui-kit/5-latest/ui-kit.css" rel="stylesheet" />
     <link href="https://extranet.static-files.d-edge.com/fonts/0-latest/open-sans/index.css" rel="stylesheet">
@@ -11,21 +11,43 @@
 
 </head>
 <body id="body" class="ctx-new-header">
-    <div class="page">
+
+    <div class="avp-banner-message banner-message--error u-margin-bottom-medium" id="connectionError" style="display: none">
+        <i class="banner-message-icon" aria-hidden="true"></i>
+        <div class="banner-message-wrap-left">
+            <p class="banner-message-title">Connection Error...</p>
+            <p class="banner-message-text">Press F5 to rejoin</p>
+        </div>
+        <!--<div class="banner-message-wrap-right">
+            <button type="button" class="banner-message-button">Close</button>
+        </div>-->
+    </div>
+
+    <div class="page" id="login-page">
+        <article class="avp-widget widget--primary u-margin-bottom-medium">
+            <header class="widget-header">
+                <div class="widget-header-default">
+                    <h2 class="widget-header-title">Login</h2>
+                </div>
+            </header>
+            <div class="widget-content">
+
+                <label class="avp-label u-display-block u-margin-bottom-smaller u-visually-hidden"
+                       for="name-input">
+                    Name
+                </label>
+                <input type="text" class="avp-textinput" id="name-input" />
+            </div>
+            <div class="widget-actions">
+                <button class="avp-button button--primary button--solid button--medium" type="submit" id="login-button">Login</button>
+            </div>
+        </article>
+    </div>
+    <div class="page" id="scrumPoker-page" style="display:none">
         <div class="u-container-small u-container-spacing">
             <div class="page--content">
                 <h2 class="u-margin-bottom-medium">Scrum Poker</h2>
 
-                <div class="avp-banner-message banner-message--error u-margin-bottom-medium" id="connectionError" style="display: none">
-                    <i class="banner-message-icon" aria-hidden="true"></i>
-                    <div class="banner-message-wrap-left">
-                        <p class="banner-message-title">Connection Error...</p>
-                        <p class="banner-message-text">Press F5 to rejoin</p>
-                    </div>
-                    <!--<div class="banner-message-wrap-right">
-                        <button type="button" class="banner-message-button">Close</button>
-                    </div>-->
-                </div>
 
                 <article class="avp-widget widget--secondary u-margin-bottom-medium">
                     <header class="widget-header">
@@ -83,212 +105,7 @@
 
 
     <!--Add script to update the page and send messages.-->
-    <script type="text/javascript">
-        var votes = [];
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-            const generateRandomName = () =>
-                Math.random().toString(36).substring(2, 10);
-
-            let username = generateRandomName();
-            const promptMessage = 'Enter your name:';
-            do {
-                username = prompt(promptMessage, username);
-                if (!username || username.startsWith('_') || username.indexOf('<') > -1 || username.indexOf('>') > -1) {
-                    username = '';
-                    promptMessage = 'Invalid input. Enter your name:';
-                }
-            } while (!username)
-
-            const messageInput = document.getElementById('message');
-            messageInput.focus();
-
-            function enableInput() {
-                $('#sendmessage').removeClass('is-disabled')
-                $('#echo').removeClass('is-disabled')
-            }
-
-            function disableInput() {
-                $('#sendmessage').addClass('is-disabled')
-                $('#echo').addClass('is-disabled')
-            }
-            function createMessageEntry(encodedName, encodedMsg) {
-                var div = $('<p class="avp-alert u-margin-bottom-small"><i class="alert-icon" aria-hidden="true"></i> </p>');
-                var message = $('<span class="alert-message"></span>')
-                var user = $('<span class="u-font-semi-bold"></span>');
-                var text = $('<span></span>');
-                text.text(encodedMsg);
-
-                if (encodedName === "_SYSTEM_") {
-                    div.addClass("alert--warning");
-                } else if (encodedName === "_BROADCAST_") {
-                    div.addClass("alert--warning");
-                } else if (encodedName === username) {
-                    div.addClass("alert--validation");
-                    user.text(username + ': ');
-
-                } else {
-                    div.addClass("alert--information");
-                    user.text(username + ': ');
-                }
-                message.append(user);
-                message.append(text);
-                div.append(message);
-                return div;
-            }
-
-            function startVote() {
-                console.log('start vote');
-                connection.send('vote', username, 'start');
-            }
-
-            function endVote() {
-                console.log('end vote');
-                connection.send('vote', username, 'end');
-            }
-
-            function voteStarted() {
-                $('#voteButtons').show();
-                $('#vote-start').addClass('is-disabled');
-                $('#vote-end').removeClass('is-disabled');
-                votes = [];
-                $('#voteCount').hide();
-            }
-
-            function voteEnded() {
-                $('#voteButtons').hide();
-                $('#vote-end').addClass('is-disabled');
-                $('#vote-start').removeClass('is-disabled');
-
-                var div = $('<div class="u-margin-top--medium u-margin-bottom--medium"><h3 class="u-margin-bottom--small">Vote result</h3></div>')
-
-                var table = $('<table class="avp-table table--horizontal-stripe"></table>');
-                var messageBox = $('#messages-received')
-
-                var body = $('<tbody></tbody>')
-                for (var row = 0; row < votes.length; row++) {
-                    var vote = votes[row];
-                    console.log(vote);  
-                    body.append($('<tr><th scope="row">' + votes[row].name + '</th><td>' + votes[row].value + '</td></tr>'));
-                }
-
-                table.append(body);
-                div.append(table);
-                messageBox.append(div);
-                $('#voteCount').hide();
-            }
-
-            function vote(element) {
-                var value = $(element.currentTarget).text();
-                console.log('Voting: ' + value);
-
-                connection.send('vote', username, value);
-            }
-
-            function bindConnectionMessage(connection) {
-                var messageCallback = function (name, message) {
-                    console.log('Received message ' + name + ': ' + message);
-                    if (!message) return;
-                    var messageEntry = createMessageEntry(name, message);
-
-                    var messageBox = $('#messages-received')
-                    messageBox.append(messageEntry);
-
-                };
-
-                var voteCallback = function (name, value) {
-                    var messageBox = $('#messages-received')
-                    if (value === 'start') {
-                        var messageEntry = createMessageEntry('_BROADCAST_', name + ' has started a vote');
-                        messageBox.append(messageEntry);
-                        voteStarted();
-                    } else if (value === 'end') {
-                        var messageEntry = createMessageEntry('_BROADCAST_', name + ' has ended a vote');
-                        messageBox.append(messageEntry);
-                        voteEnded();
-                    } else {
-                        var message = (name === username) ? 'voted ' + value : 'voted';
-                        var existingVote = votes.findIndex(v => v.name === name);
-                        if (existingVote >= 0) {
-                            votes[existingVote] = { name: name, value: value };
-                            message += ' (changed)';
-                        }
-                        else {
-                            votes[votes.length] = { name: name, value: value };
-                        }
-
-                        var messageEntry = createMessageEntry(name, message);
-                        messageBox.append(messageEntry);
-
-                        var voteCount = $('#voteCount');
-                        voteCount.text(votes.length + ' votes.')
-                        voteCount.show();
-
-
-                    }
-                };
-
-
-                connection.on('broadcastMessage', messageCallback);
-                connection.on('echo', messageCallback);
-                connection.on('vote', voteCallback);
-                connection.onclose(onConnectionError);
-            };
-
-            function onConnected(connection) {
-                console.log('connection started');
-                enableInput();
-                connection.send('broadcastMessage', '_SYSTEM_', username + ' JOINED');
-                document.getElementById('sendmessage').addEventListener('click', function (event) {
-                    console.log('sending message sendmessage: ' + messageInput.value);
-                    if (messageInput.value) {
-                        connection.send('broadcastMessage', username, messageInput.value);
-                    }
-
-                    messageInput.value = '';
-                    messageInput.focus();
-                    event.preventDefault();
-                });
-                document.getElementById('message').addEventListener('keypress', function (event) {
-                    if (event.keyCode === 13) {
-                        event.preventDefault();
-                        document.getElementById('sendmessage').click();
-                        return false;
-                    }
-                });
-                document.getElementById('echo').addEventListener('click', function (event) {
-                    console.log('sending message echo: ' + messageInput.value);
-                    connection.send('echo', username, messageInput.value);
-
-                    messageInput.value = '';
-                    messageInput.focus();
-                    event.preventDefault();
-                });
-
-                $('#vote-end').click(endVote);
-                $('#vote-start').click(startVote);
-                $('.ctx-vote-button').click(vote);
-
-                $('#voteButtonsControl').show();
-            }
-
-            function onConnectionError(error) {
-                if (error && error.message) {
-                    console.error(error.message);
-                }
-                disableInput();
-                $("#connectionError").show();
-            }
-
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl('/scrumpokerhub')
-                .build();
-            bindConnectionMessage(connection);
-            connection.start()
-                .then(() => onConnected(connection))
-                .catch(error => console.error(error.message));
-        });
+    <script type="text/javascript" src="scrumpoker.js">
     </script>
 </body>
 </html>

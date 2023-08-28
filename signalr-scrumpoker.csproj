@@ -9,6 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\scrumpoker.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\scrumpoker.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\scrumpoker.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Azure.SignalR" Version="1.21.5" />
   </ItemGroup>
 
