@@ -23,8 +23,8 @@
                         <p class="banner-message-text">Press F5 to rejoin</p>
                     </div>
                     <!--<div class="banner-message-wrap-right">
-            <button type="button" class="banner-message-button">Close</button>
-        </div>-->
+                        <button type="button" class="banner-message-button">Close</button>
+                    </div>-->
                 </div>
 
                 <article class="avp-widget widget--secondary u-margin-bottom-medium">
@@ -50,8 +50,23 @@
                         <textarea class="avp-textarea u-margin-bottom-small" id="message"></textarea>
 
                         <div>
-                            <a class="avp-button button--secondary button--solid button--medium is-disabled" id="echo">Echo</a>
-                            <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Send</a>
+                            <a class="avp-button button--secondary button--solid button--medium is-disabled" id="echo">Echo (test connection)</a>
+                            <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Chat</a>
+                        </div>
+                        <div class="u-margin-top-medium">
+                            <div id="voteButtons" style="display:none">
+                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">1</a>
+                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">2</a>
+                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">3</a>
+                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">5</a>
+                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">8</a>
+                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">13</a>
+                                <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">?</a>
+                            </div>
+                            <div id="voteButtonsControl" class="u-margin-top-small" style="display:none">
+                                <a class="avp-button button--primary button--outline button--medium" id="vote-start">Start vote</a>
+                                <a class="avp-button button--primary button--outline button--medium is-disabled" id="vote-end">End vote</a>
+                            </div>
                         </div>
                     </div>
 
@@ -68,6 +83,8 @@
 
     <!--Add script to update the page and send messages.-->
     <script type="text/javascript">
+        var votes = [];
+
         document.addEventListener('DOMContentLoaded', function () {
 
             const generateRandomName = () =>
@@ -96,32 +113,22 @@
                 $('#echo').addClass('is-disabled')
             }
             function createMessageEntry(encodedName, encodedMsg) {
-                var entry = document.createElement('div');
                 var div = $('<p class="avp-alert u-margin-bottom-small"><i class="alert-icon" aria-hidden="true"></i> </p>');
                 var message = $('<span class="alert-message"></span>')
                 var user = $('<span class="u-font-semi-bold"></span>');
                 var text = $('<span></span>');
                 text.text(encodedMsg);
 
-                entry.classList.add("message-entry");
                 if (encodedName === "_SYSTEM_") {
                     div.addClass("alert--warning");
-                    entry.innerHTML = encodedMsg;
-                    entry.classList.add("text-center");
-                    entry.classList.add("system-message");
                 } else if (encodedName === "_BROADCAST_") {
-                    entry.classList.add("text-center");
-                    entry.innerHTML = `<div class="text-center broadcast-message">${encodedMsg}</div>`;
+                    div.addClass("alert--warning");
                 } else if (encodedName === username) {
                     div.addClass("alert--validation");
-                    entry.innerHTML = `<div class="message-avatar pull-right">${encodedName}</div>` +
-                        `<div class="message-content pull-right">${encodedMsg}<div>`;
                     user.text(username + ': ');
 
                 } else {
                     div.addClass("alert--information");
-                    entry.innerHTML = `<div class="message-avatar pull-left">${encodedName}</div>` +
-                        `<div class="message-content pull-left">${encodedMsg}<div>`;
                     user.text(username + ': ');
                 }
                 message.append(user);
@@ -130,22 +137,96 @@
                 return div;
             }
 
+            function startVote() {
+                console.log('start vote');
+                connection.send('vote', username, 'start');
+            }
+
+            function endVote() {
+                console.log('end vote');
+                connection.send('vote', username, 'end');
+            }
+
+            function voteStarted() {
+                $('#voteButtons').show();
+                $('#vote-start').addClass('is-disabled');
+                $('#vote-end').removeClass('is-disabled');
+                votes = [];
+            }
+
+            function voteEnded() {
+                $('#voteButtons').hide();
+                $('#vote-end').addClass('is-disabled');
+                $('#vote-start').removeClass('is-disabled');
+
+                var div = $('<div class="u-margin-top--medium u-margin-bottom--medium"><h3 class="u-margin-bottom--small">Vote result</h3></div>')
+
+                var table = $('<table class="avp-table table--horizontal-stripe"></table>');
+                var messageBox = $('#messages-received')
+
+                var body = $('<tbody></tbody>')
+                for (var row = 0; row < votes.length; row++) {
+                    var vote = votes[row];
+                    console.log(vote);  
+                    body.append($('<tr><th scope="row">' + votes[row].name + '</th><td>' + votes[row].value + '</td></tr>'));
+                }
+
+                table.append(body);
+                div.append(table);
+                messageBox.append(div);
+            }
+
+            function vote(element) {
+                var value = $(element.currentTarget).text();
+                console.log('Voting: ' + value);
+
+                connection.send('vote', username, value);
+            }
+
             function bindConnectionMessage(connection) {
                 var messageCallback = function (name, message) {
                     console.log('Received message ' + name + ': ' + message);
                     if (!message) return;
-                    var encodedName = name;
-                    var encodedMsg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    var messageEntry = createMessageEntry(encodedName, encodedMsg);
+                    var messageEntry = createMessageEntry(name, message);
 
                     var messageBox = $('#messages-received')
                     messageBox.append(messageEntry);
 
                 };
+
+                var voteCallback = function (name, value) {
+                    var messageBox = $('#messages-received')
+                    if (value === 'start') {
+                        var messageEntry = createMessageEntry('_BROADCAST_', name + ' has started a vote');
+                        messageBox.append(messageEntry);
+                        voteStarted();
+                    } else if (value === 'end') {
+                        var messageEntry = createMessageEntry('_BROADCAST_', name + ' has ended a vote');
+                        messageBox.append(messageEntry);
+                        voteEnded();
+                    } else {
+                        var message = (name === username) ? 'voted ' + value : 'voted';
+                        var existingVote = votes.findIndex(v => v.name === name);
+                        if (existingVote >= 0) {
+                            votes[existingVote] = { name: name, value: value };
+                            message += ' (changed)';
+                        }
+                        else {
+                            votes[votes.length] = { name: name, value: value };
+                        }
+
+                        var messageEntry = createMessageEntry(name, message);
+                        messageBox.append(messageEntry);
+
+                    }
+                };
+
+
                 connection.on('broadcastMessage', messageCallback);
                 connection.on('echo', messageCallback);
+                connection.on('vote', voteCallback);
                 connection.onclose(onConnectionError);
-            }
+            };
 
             function onConnected(connection) {
                 console.log('connection started');
@@ -176,6 +257,12 @@
                     messageInput.focus();
                     event.preventDefault();
                 });
+
+                $('#vote-end').click(endVote);
+                $('#vote-start').click(startVote);
+                $('.ctx-vote-button').click(vote);
+
+                $('#voteButtonsControl').show();
             }
 
             function onConnectionError(error) {
