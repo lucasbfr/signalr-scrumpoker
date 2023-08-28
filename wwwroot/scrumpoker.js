@@ -102,7 +102,7 @@ function bindConnectionMessage(connection) {
         var messageEntry = createMessageEntry(name, message, argument);
 
         messageBox.append(messageEntry);
-        if (name && name[0] == '_' && argument) {
+        if (name && name[0] == '_') {
             // the argument is the user name
             addUser(argument);
         } else {
