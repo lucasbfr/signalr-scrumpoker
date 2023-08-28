@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace signalr_scrumpoker.Hub
+namespace signalr_scrumpoker.Hubs
 {
     public interface IScrumPokerClient
     {

@@ -12,51 +12,53 @@
 </head>
 <body id="body" class="ctx-new-header">
     <div class="page">
-        <div class="u-container">
-            <h2 class="u-margin-bottom-medium">Scrum Poker</h2>
+        <div class="u-container-small u-container-spacing">
+            <div class="page--content">
+                <h2 class="u-margin-bottom-medium">Scrum Poker</h2>
 
-            <article class="avp-widget widget--secondary u-margin-bottom-medium">
-                <header class="widget-header">
-                    <div class="widget-header-default">
-                        <h2 class="widget-header-title">Messages</h2>
+                <div class="avp-banner-message banner-message--error u-margin-bottom-medium" id="connectionError" style="display: none">
+                    <i class="banner-message-icon" aria-hidden="true"></i>
+                    <div class="banner-message-wrap-left">
+                        <p class="banner-message-title">Connection Error...</p>
+                        <p class="banner-message-text">Press F5 to rejoin</p>
                     </div>
-                </header>
-                <div class="widget-content" id="messages-received">
-                    (messages will appear here)
-                </div>
-            </article>
-
-            <article class="avp-widget widget--primary">
-                <header class="widget-header">
-                    <div class="widget-header-default">
-                        <h2 class="widget-header-title">Messages</h2>
-                    </div>
-                </header>
-                <div class="widget-content" id="messages">
-
-
-                    <label class="avp-label u-display-block u-margin-bottom-smaller">Message</label>
-                    <textarea class="avp-textarea u-margin-bottom-small" id="message"></textarea>
-
-                    <div>
-                        <a class="avp-button button--secondary button--solid button--medium is-disabled" id="echo">Echo</a>
-                        <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Send</a>
-                    </div>
+                    <!--<div class="banner-message-wrap-right">
+            <button type="button" class="banner-message-button">Close</button>
+        </div>-->
                 </div>
 
-            </article>
+                <article class="avp-widget widget--secondary u-margin-bottom-medium">
+                    <header class="widget-header">
+                        <div class="widget-header-default">
+                            <h2 class="widget-header-title">Messages</h2>
+                        </div>
+                    </header>
+                    <div class="widget-content" id="messages-received">
+                    </div>
+                </article>
 
-            <div class="avp-banner-message banner-message--error" id="connectionError" style="display: none" >
-                <i class="banner-message-icon" aria-hidden="true"></i>
-                <div class="banner-message-wrap-left">
-                    <p class="banner-message-title">Connection Error...</p>
-                    <p class="banner-message-text">Press F5 to rejoin</p>
-                </div>
-                <!--<div class="banner-message-wrap-right">
-                    <button type="button" class="banner-message-button">Close</button>
-                </div>-->
+                <article class="avp-widget widget--primary">
+                    <header class="widget-header">
+                        <div class="widget-header-default">
+                            <h2 class="widget-header-title">Messages</h2>
+                        </div>
+                    </header>
+                    <div class="widget-content" id="messages">
+
+
+                        <label class="avp-label u-display-block u-margin-bottom-smaller">Message</label>
+                        <textarea class="avp-textarea u-margin-bottom-small" id="message"></textarea>
+
+                        <div>
+                            <a class="avp-button button--secondary button--solid button--medium is-disabled" id="echo">Echo</a>
+                            <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Send</a>
+                        </div>
+                    </div>
+
+                </article>
+
+
             </div>
-
 
         </div>
     </div>
@@ -95,8 +97,15 @@
             }
             function createMessageEntry(encodedName, encodedMsg) {
                 var entry = document.createElement('div');
+                var div = $('<p class="avp-alert u-margin-bottom-small"><i class="alert-icon" aria-hidden="true"></i> </p>');
+                var message = $('<span class="alert-message"></span>')
+                var user = $('<span class="u-font-semi-bold"></span>');
+                var text = $('<span></span>');
+                text.text(encodedMsg);
+
                 entry.classList.add("message-entry");
                 if (encodedName === "_SYSTEM_") {
+                    div.addClass("alert--warning");
                     entry.innerHTML = encodedMsg;
                     entry.classList.add("text-center");
                     entry.classList.add("system-message");
@@ -104,13 +113,21 @@
                     entry.classList.add("text-center");
                     entry.innerHTML = `<div class="text-center broadcast-message">${encodedMsg}</div>`;
                 } else if (encodedName === username) {
+                    div.addClass("alert--validation");
                     entry.innerHTML = `<div class="message-avatar pull-right">${encodedName}</div>` +
                         `<div class="message-content pull-right">${encodedMsg}<div>`;
+                    user.text(username + ': ');
+
                 } else {
+                    div.addClass("alert--information");
                     entry.innerHTML = `<div class="message-avatar pull-left">${encodedName}</div>` +
                         `<div class="message-content pull-left">${encodedMsg}<div>`;
+                    user.text(username + ': ');
                 }
-                return entry;
+                message.append(user);
+                message.append(text);
+                div.append(message);
+                return div;
             }
 
             function bindConnectionMessage(connection) {
@@ -121,9 +138,9 @@
                     var encodedMsg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     var messageEntry = createMessageEntry(encodedName, encodedMsg);
 
-                    var messageBox = document.getElementById('messages');
-                    messageBox.appendChild(messageEntry);
-                    messageBox.scrollTop = messageBox.scrollHeight;
+                    var messageBox = $('#messages-received')
+                    messageBox.append(messageEntry);
+
                 };
                 connection.on('broadcastMessage', messageCallback);
                 connection.on('echo', messageCallback);
@@ -166,7 +183,7 @@
                     console.error(error.message);
                 }
                 disableInput();
-                var modal = $("#myModal").show();
+                $("#connectionError").show();
             }
 
             const connection = new signalR.HubConnectionBuilder()

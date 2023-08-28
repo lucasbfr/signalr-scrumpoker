@@ -1,4 +1,4 @@
-using signalr_scrumpoker.Hub;
+using signalr_scrumpoker.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
