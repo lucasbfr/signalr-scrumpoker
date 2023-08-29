@@ -13,24 +13,24 @@ function disableInput() {
     $('#sendmessage').addClass('is-disabled')
     $('#echo').addClass('is-disabled')
 }
-function createMessageEntry(userName, message, argument) {
+function createMessageEntry(name, message, argument) {
     var div = $('<p class="avp-alert u-margin-bottom-small"><i class="alert-icon" aria-hidden="true"></i> </p>');
     var messageSpan = $('<span class="alert-message"></span>')
     var user = $('<span class="u-font-semi-bold"></span>');
     var text = $('<span></span>');
     text.text(message);
 
-    if (userName === "_SYSTEM_") {
+    if (name === "_SYSTEM_") {
         div.addClass("alert--warning");
-    } else if (userName === "_BROADCAST_") {
+    } else if (name === "_BROADCAST_") {
         div.addClass("alert--warning");
-    } else if (userName === username) {
+    } else if (name === username) {
         div.addClass("alert--validation");
-        user.text(username + ': ');
+        user.text(name + ': ');
 
     } else {
         div.addClass("alert--information");
-        user.text(username + ': ');
+        user.text(name + ': ');
     }
     messageSpan.append(user);
     messageSpan.append(text);
