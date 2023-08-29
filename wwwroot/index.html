@@ -8,7 +8,6 @@
     <link href="https://extranet.static-files.d-edge.com/fonts/0-latest/open-sans/index.css" rel="stylesheet">
     <link href='//fonts.googleapis.com/css?family=Open+Sans:300,400,600' rel='stylesheet' type='text/css' />
 
-
 </head>
 <body>
     <div class="page">
@@ -20,8 +19,8 @@
                     <p class="banner-message-text">Press F5 to rejoin</p>
                 </div>
                 <!--<div class="banner-message-wrap-right">
-            <button type="button" class="banner-message-button">Close</button>
-        </div>-->
+                    <button type="button" class="banner-message-button">Close</button>
+                </div>-->
             </div>
 
             <div id="login-page">
@@ -32,7 +31,6 @@
                         </div>
                     </header>
                     <div class="widget-content">
-
                         <label class="avp-label u-display-block u-margin-bottom-smaller u-visually-hidden"
                                for="name-input">
                             Name
@@ -47,7 +45,6 @@
             <div id="scrumPoker-page" style="display:none">
                 <div class="page--content">
                     <h2 class="u-margin-bottom-medium">Scrum Poker</h2>
-
 
                     <article class="avp-widget widget--secondary u-margin-bottom-medium">
                         <header class="widget-header">
@@ -66,9 +63,7 @@
                             </div>
                         </header>
                         <div class="widget-content" id="messages">
-
-
-                            <label class="avp-label u-display-block u-margin-bottom-smaller">Message</label>
+                            <label class="avp-label u-display-block u-margin-bottom-smaller">Message the room</label>
                             <textarea class="avp-textarea u-margin-bottom-small" id="message"></textarea>
 
                             <div>
@@ -76,6 +71,7 @@
                                 <a class="avp-button button--primary button--solid button--medium is-disabled" id="sendmessage">Chat</a>
                                 <span id="userCount" class="u-font-small"></span>
                             </div>
+
                             <div class="u-margin-top-medium">
                                 <div id="voteButtons" style="display:none">
                                     <a class="avp-button button--secondary button--outline button--medium ctx-vote-button">1</a>
@@ -98,12 +94,10 @@
             </div>
         </div>
     </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.0.js"></script>
 
-
     <!--Add script to update the page and send messages.-->
-    <script type="text/javascript" src="scrumpoker.js">
-    </script>
+    <script type="text/javascript" src="scrumpoker.js"></script>
 </body>
 </html>

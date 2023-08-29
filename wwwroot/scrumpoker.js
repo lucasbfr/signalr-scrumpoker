@@ -62,10 +62,9 @@ function voteEnded() {
     $('#vote-start').removeClass('is-disabled');
 
     var div = $('<div class="u-margin-top--medium u-margin-bottom--medium"><h3 class="u-margin-bottom--small">Vote result</h3></div>')
-
     var table = $('<table class="avp-table table--horizontal-stripe"></table>');
-
     var body = $('<tbody></tbody>')
+
     for (var row = 0; row < votes.length; row++) {
         var vote = votes[row];
         console.log(vote);
@@ -163,7 +162,6 @@ function onConnected(connection) {
         event.preventDefault();
     });
 
-
     $('#echo').click((event) => {
         var message = 'Echo at ' + new Date();
         console.log('sending message echo: ' + message);
@@ -181,8 +179,6 @@ function onConnected(connection) {
     $('.ctx-vote-button').click(vote);
 
     $('#voteButtonsControl').show();
-
-
 }
 
 function onConnectionError(error) {
@@ -220,6 +216,8 @@ function login() {
     }
 }
 
+// Code below is executed upon page load
+
 $('#login-button').click(login);
 $('#name-input').focus();
 
@@ -230,7 +228,6 @@ document.getElementById('message').addEventListener('keypress', function (event)
         return false;
     }
 });
-
 document.getElementById('name-input').addEventListener('keypress', function (event) {
     if (event.keyCode === 13) {
         event.preventDefault();
